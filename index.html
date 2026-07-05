@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHECK！出门清单</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pearl-white': '#FBF9F6',
+                        'blush-pink': '#FFD6E7',
+                        'soft-pink': '#FFE9F1',
+                        'lavender-mist': '#E8DCFA',
+                        'deep-lavender': '#C9B6F2',
+                        'deep-charcoal': '#252028',
+                        'soft-champagne': '#FFF0F5',
+                        'arctic-blue': '#E8E4F0',
+                        'rose-glow': '#FFC2D9',
+                    },
+                    borderRadius: {
+                        '20': '20px',
+                        '24': '24px',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'PingFang SC', 'Microsoft YaHei', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 30px rgba(255, 194, 217, 0.15)',
+                        'card': '0 8px 32px rgba(201, 182, 242, 0.2)',
+                    },
+                    transitionProperty: {
+                        'color-bg': 'background-color, color',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Pacifico&family=Dancing+Script:wght@700&display=swap');
+        
+        .logo-text {
+            font-family: 'Pacifico', 'Dancing Script', cursive;
+            font-weight: 700;
+            color: #1a1620;
+            font-size: 2.75rem;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        @media (min-width: 640px) {
+            .logo-text {
+                font-size: 3.25rem;
+            }
+        }
+        
+        .subtitle-text {
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        @media (min-width: 640px) {
+            .subtitle-text {
+                font-size: 1rem;
+            }
+        }
+        
+        body {
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #FBF9F6;
+            color: #252028;
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -10%;
+            left: -5%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 182, 217, 0.5) 0%, rgba(255, 182, 217, 0) 70%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(60px);
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -15%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(206, 191, 249, 0.6) 0%, rgba(206, 191, 249, 0) 70%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .bento-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 20px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .bento-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 24px;
+            }
+        }
+
+        .card-transition {
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .card-transition:active {
+            transform: scale(0.98);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-transition {
+            transition: all 0.3s ease;
+        }
+
+        .button-press {
+            transition: transform 0.1s ease;
+        }
+
+        .button-press:active {
+            transform: scale(0.96);
+        }
+
+        .toast {
+            animation: toastIn 0.3s ease-out forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-enter {
+            animation: modalIn 0.2s ease-out forwards;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .card-delete-mode {
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .card-delete-mode.card-selected {
+            border-color: #FF9BBF;
+            box-shadow: 0 0 0 3px rgba(255, 155, 191, 0.2);
+        }
+
+        .delete-check {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-blur-sm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .card-selected .delete-check {
+            background: #FF9BBF;
+            border-color: #FF9BBF;
+        }
+
+        .delete-check svg {
+            width: 12px;
+            height: 12px;
+            color: white;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s ease;
+        }
+
+        .card-selected .delete-check svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .delete-btn-active {
+            background: #FF9BBF !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 relative">
+    <div class="grain-overlay"></div>
+    <div class="max-w-4xl mx-auto relative z-10">
+        <header class="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
+            <div>
+                <h1 class="logo-text">CHECK！</h1>
+                <p class="subtitle-text text-deep-charcoal/50 mt-2">Pack light, check right.</p>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="flex bg-white/50 backdrop-blur-sm rounded-20 p-1">
+                    <button id="tab-domestic" class="tab-btn px-6 py-2.5 rounded-20 font-medium text-deep-charcoal bg-blush-pink/80 tab-transition shadow-sm" data-tab="domestic">
+                        国内出行
+                    </button>
+                    <button id="tab-international" class="tab-btn px-6 py-2.5 rounded-20 font-medium text-deep-charcoal/50 tab-transition hover:text-deep-charcoal" data-tab="international">
+                        国外出行
+                    </button>
+                </div>
+                
+                <button id="reset-btn" class="button-press px-5 py-2.5 rounded-20 bg-lavender-mist/80 text-deep-charcoal font-medium hover:bg-deep-lavender transition-colors backdrop-blur-sm">
+                    一键重置
+                </button>
+            </div>
+        </header>
+
+        <div class="mb-8">
+            <div class="flex gap-3">
+                <input 
+                    type="text" 
+                    id="item-input" 
+                    placeholder="输入物品名称..." 
+                    class="flex-1 px-5 py-3 rounded-20 bg-white/60 backdrop-blur-sm border-none outline-none text-deep-charcoal placeholder-deep-charcoal/40 focus:bg-white focus:ring-2 focus:ring-blush-pink/50 transition-all"
+                >
+                <button id="add-btn" class="button-press px-6 py-3 rounded-20 bg-blush-pink/80 text-deep-charcoal font-medium hover:bg-rose-glow transition-colors backdrop-blur-sm">
+                    添加物品
+                </button>
+                <button id="delete-btn" class="button-press px-6 py-3 rounded-20 bg-lavender-mist/80 text-deep-charcoal font-medium hover:bg-deep-lavender transition-colors backdrop-blur-sm">
+                    删除物品
+                </button>
+            </div>
+        </div>
+
+        <main id="items-container" class="bento-grid">
+        </main>
+
+        <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20 text-deep-charcoal/50">
+            <div class="w-20 h-20 rounded-full bg-soft-pink/60 flex items-center justify-center mb-4 backdrop-blur-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-deep-charcoal/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+            </div>
+            <p class="text-lg">还没有添加物品</p>
+            <p class="text-sm mt-1">在上方输入框添加你的出行必备物品</p>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none"></div>
+
+    <div id="confirm-modal" class="fixed inset-0 bg-deep-charcoal/10 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-pearl-white/90 backdrop-blur-md rounded-24 p-6 w-80 modal-enter shadow-card">
+            <h3 class="text-lg font-medium text-deep-charcoal mb-2">确认重置？</h3>
+            <p class="text-deep-charcoal/50 text-sm mb-6">将当前分类所有物品恢复为未勾选状态，已添加的物品不会被删除。</p>
+            <div class="flex gap-3">
+                <button id="cancel-reset" class="flex-1 px-4 py-2.5 rounded-20 bg-arctic-blue/60 text-deep-charcoal font-medium button-press hover:bg-arctic-blue transition-colors">
+                    取消
+                </button>
+                <button id="confirm-reset" class="flex-1 px-4 py-2.5 rounded-20 bg-blush-pink/80 text-deep-charcoal font-medium button-press hover:bg-rose-glow transition-colors">
+                    确认重置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY_DOMESTIC = 'checklist_domestic';
+        const STORAGE_KEY_INTERNATIONAL = 'checklist_international';
+        
+        const defaultDomesticItems = [
+            { id: 1, name: '身份证', checked: false },
+            { id: 2, name: '手机充电器', checked: false },
+            { id: 3, name: '口罩', checked: false },
+            { id: 4, name: '纸巾', checked: false },
+        ];
+        
+        const defaultInternationalItems = [
+            { id: 1, name: '护照', checked: false },
+            { id: 2, name: 'Visa卡', checked: false },
+        ];
+
+        let currentTab = 'domestic';
+        let isDeleteMode = false;
+        let selectedForDelete = new Set();
+        let items = {
+            domestic: [],
+            international: []
+        };
+
+        const itemsContainer = document.getElementById('items-container');
+        const emptyState = document.getElementById('empty-state');
+        const itemInput = document.getElementById('item-input');
+        const addBtn = document.getElementById('add-btn');
+        const deleteBtn = document.getElementById('delete-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const tabDomestic = document.getElementById('tab-domestic');
+        const tabInternational = document.getElementById('tab-international');
+        const confirmModal = document.getElementById('confirm-modal');
+        const cancelReset = document.getElementById('cancel-reset');
+        const confirmReset = document.getElementById('confirm-reset');
+        const toastContainer = document.getElementById('toast-container');
+
+        function loadItems() {
+            const domesticStored = localStorage.getItem(STORAGE_KEY_DOMESTIC);
+            const internationalStored = localStorage.getItem(STORAGE_KEY_INTERNATIONAL);
+            
+            items.domestic = domesticStored ? JSON.parse(domesticStored) : defaultDomesticItems;
+            items.international = internationalStored ? JSON.parse(internationalStored) : defaultInternationalItems;
+        }
+
+        function saveItems() {
+            localStorage.setItem(STORAGE_KEY_DOMESTIC, JSON.stringify(items.domestic));
+            localStorage.setItem(STORAGE_KEY_INTERNATIONAL, JSON.stringify(items.international));
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast bg-white/90 backdrop-blur-md text-deep-charcoal px-5 py-2.5 rounded-full text-sm font-medium shadow-card border border-white/50';
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -20px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        function renderItems() {
+            const currentItems = items[currentTab];
+            itemsContainer.innerHTML = '';
+            
+            if (currentItems.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            currentItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                const isSelected = selectedForDelete.has(item.id);
+                let cardClasses = `card-transition cursor-pointer rounded-20 p-5 flex items-center justify-center min-h-[100px] ${item.checked ? 'bg-deep-lavender' : 'bg-lavender-mist/80'} text-deep-charcoal font-medium text-center select-none fade-in backdrop-blur-sm shadow-card/30`;
+                
+                if (isDeleteMode) {
+                    cardClasses += ' card-delete-mode';
+                    if (isSelected) {
+                        cardClasses += ' card-selected';
+                    }
+                }
+                
+                card.className = cardClasses;
+                card.style.animationDelay = `${index * 50}ms`;
+                card.dataset.id = item.id;
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = item.name;
+                card.appendChild(nameSpan);
+                
+                if (isDeleteMode) {
+                    const checkIcon = document.createElement('div');
+                    checkIcon.className = 'delete-check';
+                    checkIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    card.appendChild(checkIcon);
+                }
+                
+                if (isDeleteMode) {
+                    card.addEventListener('click', () => toggleDeleteSelect(item.id));
+                } else {
+                    card.addEventListener('click', () => toggleItem(item.id));
+                }
+                
+                itemsContainer.appendChild(card);
+            });
+        }
+
+        function toggleItem(id) {
+            const currentItems = items[currentTab];
+            const item = currentItems.find(i => i.id === id);
+            if (item) {
+                item.checked = !item.checked;
+                saveItems();
+                const card = itemsContainer.querySelector(`[data-id="${id}"]`);
+                if (card) {
+                    if (item.checked) {
+                        card.classList.remove('bg-lavender-mist/80');
+                        card.classList.add('bg-deep-lavender');
+                    } else {
+                        card.classList.remove('bg-deep-lavender');
+                        card.classList.add('bg-lavender-mist/80');
+                    }
+                }
+            }
+        }
+
+        function toggleDeleteMode() {
+            isDeleteMode = !isDeleteMode;
+            selectedForDelete.clear();
+            
+            if (isDeleteMode) {
+                deleteBtn.textContent = '取消删除';
+                deleteBtn.classList.add('delete-btn-active');
+                itemInput.disabled = true;
+                itemInput.classList.add('opacity-50', 'cursor-not-allowed');
+                addBtn.disabled = true;
+                addBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                deleteBtn.textContent = '删除物品';
+                deleteBtn.classList.remove('delete-btn-active');
+                itemInput.disabled = false;
+                itemInput.classList.remove('opacity-50', 'cursor-not-allowed');
+                addBtn.disabled = false;
+                addBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            renderItems();
+        }
+
+        function toggleDeleteSelect(id) {
+            if (selectedForDelete.has(id)) {
+                selectedForDelete.delete(id);
+            } else {
+                selectedForDelete.add(id);
+            }
+            
+            const card = itemsContainer.querySelector(`[data-id="${id}"]`);
+            if (card) {
+                if (selectedForDelete.has(id)) {
+                    card.classList.add('card-selected');
+                } else {
+                    card.classList.remove('card-selected');
+                }
+            }
+            
+            if (selectedForDelete.size > 0) {
+                deleteBtn.textContent = `删除选中 (${selectedForDelete.size})`;
+            } else {
+                deleteBtn.textContent = '取消删除';
+            }
+        }
+
+        function deleteSelectedItems() {
+            if (selectedForDelete.size === 0) {
+                showToast('请先选择要删除的物品');
+                return;
+            }
+            
+            const currentItems = items[currentTab];
+            items[currentTab] = currentItems.filter(item => !selectedForDelete.has(item.id));
+            
+            saveItems();
+            const count = selectedForDelete.size;
+            selectedForDelete.clear();
+            isDeleteMode = false;
+            deleteBtn.textContent = '删除物品';
+            deleteBtn.classList.remove('delete-btn-active');
+            itemInput.disabled = false;
+            itemInput.classList.remove('opacity-50', 'cursor-not-allowed');
+            addBtn.disabled = false;
+            addBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            renderItems();
+            showToast(`已删除 ${count} 个物品`);
+        }
+
+        function addItem() {
+            const name = itemInput.value.trim();
+            if (!name) {
+                showToast('请输入物品名称');
+                itemInput.focus();
+                return;
+            }
+            
+            const currentItems = items[currentTab];
+            const newId = currentItems.length > 0 ? Math.max(...currentItems.map(i => i.id)) + 1 : 1;
+            
+            currentItems.push({
+                id: newId,
+                name: name,
+                checked: false
+            });
+            
+            itemInput.value = '';
+            saveItems();
+            renderItems();
+            showToast('添加成功');
+        }
+
+        function resetCurrentTab() {
+            const currentItems = items[currentTab];
+            currentItems.forEach(item => {
+                item.checked = false;
+            });
+            saveItems();
+            renderItems();
+            showToast('已重置所有勾选状态');
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            if (isDeleteMode) {
+                toggleDeleteMode();
+            }
+            
+            if (tab === 'domestic') {
+                tabDomestic.classList.add('bg-blush-pink/80', 'text-deep-charcoal', 'shadow-sm');
+                tabDomestic.classList.remove('text-deep-charcoal/50');
+                tabInternational.classList.remove('bg-blush-pink/80', 'text-deep-charcoal', 'shadow-sm');
+                tabInternational.classList.add('text-deep-charcoal/50');
+            } else {
+                tabInternational.classList.add('bg-blush-pink/80', 'text-deep-charcoal', 'shadow-sm');
+                tabInternational.classList.remove('text-deep-charcoal/50');
+                tabDomestic.classList.remove('bg-blush-pink/80', 'text-deep-charcoal', 'shadow-sm');
+                tabDomestic.classList.add('text-deep-charcoal/50');
+            }
+            
+            renderItems();
+        }
+
+        addBtn.addEventListener('click', addItem);
+        
+        itemInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addItem();
+            }
+        });
+
+        deleteBtn.addEventListener('click', () => {
+            if (!isDeleteMode) {
+                toggleDeleteMode();
+            } else if (selectedForDelete.size === 0) {
+                toggleDeleteMode();
+            } else {
+                showDeleteConfirm();
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            confirmModal.dataset.type = 'reset';
+            document.querySelector('#confirm-modal h3').textContent = '确认重置？';
+            document.querySelector('#confirm-modal p').textContent = '将当前分类所有物品恢复为未勾选状态，已添加的物品不会被删除。';
+            confirmModal.classList.remove('hidden');
+        });
+
+        function showDeleteConfirm() {
+            confirmModal.dataset.type = 'delete';
+            document.querySelector('#confirm-modal h3').textContent = '确认删除？';
+            document.querySelector('#confirm-modal p').textContent = `将删除选中的 ${selectedForDelete.size} 个物品，删除后无法恢复。`;
+            confirmModal.classList.remove('hidden');
+        }
+
+        cancelReset.addEventListener('click', () => {
+            confirmModal.classList.add('hidden');
+        });
+
+        confirmReset.addEventListener('click', () => {
+            const type = confirmModal.dataset.type;
+            confirmModal.classList.add('hidden');
+            if (type === 'delete') {
+                deleteSelectedItems();
+            } else {
+                resetCurrentTab();
+            }
+        });
+
+        tabDomestic.addEventListener('click', () => switchTab('domestic'));
+        tabInternational.addEventListener('click', () => switchTab('international'));
+
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                confirmModal.classList.add('hidden');
+            }
+        });
+
+        loadItems();
+        renderItems();
+    </script>
+</body>
+</html>
